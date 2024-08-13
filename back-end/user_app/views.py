@@ -2,6 +2,8 @@ from rest_framework.authtoken.models import Token
 from .serializers import UserSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status as s
 from django.contrib.auth import authenticate, login, logout
 
@@ -34,3 +36,16 @@ class LogIn(APIView):
             )
         else:
             return Response("No User Matching Credentials", status=s.HTTP_404_NOT_FOUND)
+
+
+class UserView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+class LogOut(UserView):
+    def post(self, request):
+        user = request.user
+        user.auth_token.delete()
+        logout(request)
+        return Response("You have successfully logged out", status=s.HTTP_200_OK)
