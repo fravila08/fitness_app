@@ -1,6 +1,8 @@
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.urls import reverse
 from .serializers import AppUser, UserSerializer
 from django.contrib.auth import authenticate
+import json
 
 
 # Create your tests here.
@@ -15,6 +17,7 @@ class UserTests(TestCase):
             "first_name": "Francisco",
             "last_name": "Avila",
         }
+        self.client = Client()
 
     def test_01_successful_user(self):
         try:
@@ -41,8 +44,26 @@ class UserTests(TestCase):
         new_user = UserSerializer(data=self.user_attributes, partial=True)
         if new_user.is_valid():
             new_user.save()
-            self.assertEqual(new_user.data, UserSerializer(AppUser.objects.first()).data)
+            self.assertEqual(
+                new_user.data, UserSerializer(AppUser.objects.first()).data
+            )
         else:
             print(new_user.errors)
             self.fail()
-            
+
+    def test_04_register_user(self):
+        try:
+            response = self.client.post(
+                reverse("register user"),
+                data=self.user_attributes,
+                content_type="application/json",
+            )
+            with self.subTest():
+                self.assertEqual(response.status_code, 201)
+            body = json.loads(response.content)
+            user = AppUser.objects.first()
+            test_body = {"user": user.username, "token": user.auth_token.key}
+            self.assertEqual(body, test_body)
+        except Exception as e:
+            print(e)
+            self.fail()
