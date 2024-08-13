@@ -13,7 +13,7 @@ class AppUser(AbstractUser):
     weight = models.DecimalField(
         max_digits=5,
         decimal_places=2,
-        validators=[v.MinValueValidator(0), v.MaxValueValidator(400)],
+        validators=[v.MinValueValidator(0.01), v.MaxValueValidator(400.01)],
     )
     height = models.PositiveIntegerField(
         validators=[v.MinValueValidator(0), v.MaxValueValidator(96)]

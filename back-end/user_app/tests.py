@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import AppUser
+from .serializers import AppUser, UserSerializer
 from django.contrib.auth import authenticate
 
 
@@ -35,3 +35,14 @@ class UserTests(TestCase):
         except Exception as e:
             print(e)
             self.fail()
+
+    def test_03_create_user_with_serializer(self):
+        print(AppUser.objects.all())
+        new_user = UserSerializer(data=self.user_attributes, partial=True)
+        if new_user.is_valid():
+            new_user.save()
+            self.assertEqual(new_user.data, UserSerializer(AppUser.objects.first()).data)
+        else:
+            print(new_user.errors)
+            self.fail()
+            
