@@ -16,6 +16,7 @@ class UserTests(TestCase):
             "username": "fravila08",
             "first_name": "Francisco",
             "last_name": "Avila",
+            "password":"p3r553u5"
         }
         self.client = Client()
 
@@ -40,7 +41,6 @@ class UserTests(TestCase):
             self.fail()
 
     def test_03_create_user_with_serializer(self):
-        print(AppUser.objects.all())
         new_user = UserSerializer(data=self.user_attributes, partial=True)
         if new_user.is_valid():
             new_user.save()
@@ -67,3 +67,24 @@ class UserTests(TestCase):
         except Exception as e:
             print(e)
             self.fail()
+
+    def test_05_login_user(self):
+        self.client.post(
+            reverse("register user"),
+            data=self.user_attributes,
+            content_type="application/json",
+        )
+        response = self.client.post(
+            reverse("user login"),
+            data={
+                "email": self.user_attributes.get("email"),
+                "password": self.user_attributes.get("password"),
+            },
+            content_type="application/json",
+        )
+        with self.subTest():
+            self.assertEqual(response.status_code, 200)
+        body = json.loads(response.content)
+        user = AppUser.objects.first()
+        test_body = {"user": user.username, "token": user.auth_token.key}
+        self.assertEqual(body, test_body)
