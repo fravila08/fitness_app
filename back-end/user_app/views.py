@@ -25,9 +25,7 @@ class Register(APIView):
 class LogIn(APIView):
     def post(self, request):
         data = request.data.copy()
-        user = authenticate(
-            request, username=data.get("email"), password=data.get("password")
-        )
+        user = authenticate(username=data.get("email"), password=data.get("password"))
         if user:
             login(request, user)
             token, _ = Token.objects.get_or_create(user=user)
