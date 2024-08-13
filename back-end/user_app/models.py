@@ -15,4 +15,7 @@ class AppUser(AbstractUser):
         decimal_places=2,
         validators=[v.MinValueValidator(0), v.MaxValueValidator(400)],
     )
+    height = models.PositiveIntegerField(
+        validators=[v.MinValueValidator(0), v.MaxValueValidator(96)]
+    )
     REQUIRED_FIELDS = ["username", "age", "weight", "height"]
