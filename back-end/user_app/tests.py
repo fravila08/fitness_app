@@ -1,6 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from .serializers import AppUser, UserSerializer
+from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 import json
 
@@ -16,7 +17,7 @@ class UserTests(TestCase):
             "username": "fravila08",
             "first_name": "Francisco",
             "last_name": "Avila",
-            "password":"p3r553u5"
+            "password": "p3r553u5",
         }
         self.client = Client()
 
@@ -69,22 +70,47 @@ class UserTests(TestCase):
             self.fail()
 
     def test_05_login_user(self):
-        self.client.post(
-            reverse("register user"),
-            data=self.user_attributes,
-            content_type="application/json",
-        )
-        response = self.client.post(
-            reverse("user login"),
-            data={
-                "email": self.user_attributes.get("email"),
-                "password": self.user_attributes.get("password"),
-            },
-            content_type="application/json",
-        )
-        with self.subTest():
-            self.assertEqual(response.status_code, 200)
-        body = json.loads(response.content)
-        user = AppUser.objects.first()
-        test_body = {"user": user.username, "token": user.auth_token.key}
-        self.assertEqual(body, test_body)
+        try:
+            self.client.post(
+                reverse("register user"),
+                data=self.user_attributes,
+                content_type="application/json",
+            )
+            response = self.client.post(
+                reverse("user login"),
+                data={
+                    "email": self.user_attributes.get("email"),
+                    "password": self.user_attributes.get("password"),
+                },
+                content_type="application/json",
+            )
+            with self.subTest():
+                self.assertEqual(response.status_code, 200)
+            body = json.loads(response.content)
+            user = AppUser.objects.first()
+            test_body = {"user": user.username, "token": user.auth_token.key}
+            self.assertEqual(body, test_body)
+        except Exception as e:
+            print(e)
+            self.fail()
+
+    def test_06_user_logout(self):
+        try:
+            register_response = self.client.post(
+                reverse("register user"),
+                data=self.user_attributes,
+                content_type="application/json",
+            )
+            token = json.loads(register_response.content).get("token")
+            logout_response = self.client.post(
+                reverse("user logout"), headers={"Authorization": f"Token {token}"}
+            )
+            with self.subTest():
+                self.assertEqual(logout_response.status_code, 200)
+            with self.subTest():
+                self.assertFalse(Token.objects.all())
+            content = json.loads(logout_response.content)
+            self.assertEqual(content, "You have successfully logged out")
+        except Exception as e:
+            print(e)
+            self.fail()
