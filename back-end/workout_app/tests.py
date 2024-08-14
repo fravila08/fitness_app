@@ -84,7 +84,11 @@ class WorkoutTests(TestCase):
                 self.assertEqual(response.status_code, 200)
             body = json.loads(response.content)
             self.assertEqual(
-                body, WorkoutSerializer(self.user.workouts.all(), many=True).data
+                body,
+                [
+                    x["name"]
+                    for x in WorkoutSerializer(self.user.workouts.all(), many=True).data
+                ],
             )
         except Exception as e:
             print(e)

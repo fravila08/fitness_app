@@ -8,7 +8,7 @@ from .serializers import *
 class AllWorkoutsView(UserView):
     def get(self, request):
         user_workouts = request.user.workouts.all()
-        return Response(WorkoutSerializer(user_workouts, many=True).data)
+        return Response([x["name"] for x in WorkoutSerializer(user_workouts, many=True).data])
     
     def post(self, request):
         data = request.data.copy()
