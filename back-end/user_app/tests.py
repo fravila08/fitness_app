@@ -114,3 +114,22 @@ class UserTests(TestCase):
         except Exception as e:
             print(e)
             self.fail()
+
+    def test_07_get_user_info(self):
+        try:
+            register_response = self.client.post(
+                reverse("register user"),
+                data=self.user_attributes,
+                content_type="application/json",
+            )
+            token = json.loads(register_response.content).get("token")
+            response = self.client.get(
+                reverse("user info"), headers={"Authorization": f"Token {token}"}
+            )
+            with self.subTest():
+                self.assertEqual(response.status_code, 200)
+            content = json.loads(response.content)
+            self.assertEqual(content, UserSerializer(AppUser.objects.first()).data)
+        except Exception as e:
+            print(e)
+            self.fail()

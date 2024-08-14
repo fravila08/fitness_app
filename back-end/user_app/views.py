@@ -49,3 +49,16 @@ class LogOut(UserView):
         user.auth_token.delete()
         logout(request)
         return Response("You have successfully logged out", status=s.HTTP_200_OK)
+
+class UserInfo(UserView):
+    def get(self, request):
+        user = UserSerializer(request.user)
+        return Response(user.data)
+    
+    def put(self, request):
+        user = UserSerializer(request.user, data=request.data, partial=True)
+        if user.is_valid():
+            user.save()
+            return Response(user.data)
+        else:
+            return Response(user.errors, status=s.HTTP_400_BAD_REQUEST)
