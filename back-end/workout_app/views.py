@@ -13,7 +13,7 @@ class AllWorkoutsView(UserView):
     def post(self, request):
         data = request.data.copy()
         data['user'] = request.user.id
-        new_workout = WorkoutSerializer(data=data)
+        new_workout = WorkoutSerializer(data=data, partial=True)
         if new_workout.is_valid():
             new_workout.save()
             return Response(new_workout.data, status=s.HTTP_201_CREATED)
