@@ -1,5 +1,6 @@
 from django.db import models
 from django.core import validators as v
+from user_app.models import AppUser
 
 
 # Create your models here.
@@ -11,10 +12,13 @@ class Book(models.Model):
     last_read = models.DateTimeField(null=True, blank=True)
     title = models.CharField(blank=False, null=False)
     summary = models.TextField(null=True, blank=True)
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name="books")
 
 
 class ReadingSummary(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="summaries")
+    book = models.ForeignKey(
+        Book, on_delete=models.CASCADE, related_name="reading_summaries"
+    )
     summary = models.TextField(blank=False, null=False)
     time_reading = models.DecimalField(
         max_digits=4,

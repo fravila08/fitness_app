@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "user_app",
     "workout_app",
+    "book_app",
 ]
 
 MIDDLEWARE = [
